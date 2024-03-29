@@ -14,7 +14,9 @@ namespace NRKernal
 
     /// <summary> A nr grabbable object. </summary>
     [RequireComponent(typeof(Rigidbody))]
-    public class NRGrabbableObject : MonoBehaviour {
+    public class NRGrabbableObject : MonoBehaviour
+    {
+        public bool IsPlayer = false;
         /// <summary> Gets a value indicating whether we can grab. </summary>
         /// <value> True if we can grab, false if not. </value>
         public bool CanGrab { get { return Grabber == null; } }
@@ -58,7 +60,10 @@ namespace NRKernal
         protected virtual void Awake()
         {
             m_AttachedRigidbody = GetComponent<Rigidbody>();
-            m_OriginRigidbodyKinematic = m_AttachedRigidbody.isKinematic;
+            if (!IsPlayer)
+            {
+                m_OriginRigidbodyKinematic = m_AttachedRigidbody.isKinematic;
+            }
             CheckAttachedColliders();
         }
 
@@ -80,6 +85,11 @@ namespace NRKernal
         public void GrabEnd()
         {
             m_AttachedRigidbody.isKinematic = m_OriginRigidbodyKinematic;
+            if (!IsPlayer)
+            {
+                m_AttachedRigidbody.velocity = Vector3.zero;
+                m_AttachedRigidbody.angularVelocity = Vector3.zero;
+            }
             Grabber = null;
             if (m_OnGrabEnded != null)
             {

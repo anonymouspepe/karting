@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using KartGame.KartSystems;
 using UnityEngine.SceneManagement;
+using NRKernal;
 
 public enum GameState{Play, Won, Lost}
 
@@ -88,6 +89,7 @@ public class GameFlowManager : MonoBehaviour
         if (gameMode == "Normal")
         {
             cameraRig.transform.SetParent(GameObject.Find("Tracking Container").transform);
+            NRInput.SetInputSource(InputSourceEnum.Controller);
         }
         else
         {
@@ -99,6 +101,7 @@ public class GameFlowManager : MonoBehaviour
                 PlayerPrefs.GetFloat("p_y"),
                 PlayerPrefs.GetFloat("p_z")
                 );
+            NRInput.SetInputSource(InputSourceEnum.Hands);
         }
 
         //run race countdown animation
