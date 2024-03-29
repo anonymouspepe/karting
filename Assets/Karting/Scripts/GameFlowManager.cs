@@ -40,6 +40,7 @@ public class GameFlowManager : MonoBehaviour
 
     public bool autoFindKarts = true;
     public ArcadeKart playerKart;
+    public Transform resetPoint;
 
     ArcadeKart[] karts;
     ObjectiveManager m_ObjectiveManager;
@@ -48,10 +49,14 @@ public class GameFlowManager : MonoBehaviour
     string m_SceneToLoad;
     float elapsedTimeBeforeEndScene = 0;
 
+    string gameMode;
+    GameObject globalParent;
     GameObject cameraRig;
 
     void Start()
     {
+        gameMode = PlayerPrefs.GetString("PlayMode");
+
         if (autoFindKarts)
         {
             karts = FindObjectsOfType<ArcadeKart>();
@@ -80,7 +85,21 @@ public class GameFlowManager : MonoBehaviour
         }
 
         cameraRig = GameObject.Find("NRCameraRig");
-        cameraRig.transform.SetParent(GameObject.Find("Tracking Container").transform);
+        if (gameMode == "Normal")
+        {
+            cameraRig.transform.SetParent(GameObject.Find("Tracking Container").transform);
+        }
+        else
+        {
+            cameraRig.transform.SetParent(null);
+            globalParent = GameObject.Find("MainGameObjects");
+            globalParent.transform.localScale *= 0.01f;
+            globalParent.transform.position = new Vector3(
+                PlayerPrefs.GetFloat("p_x"),
+                PlayerPrefs.GetFloat("p_y"),
+                PlayerPrefs.GetFloat("p_z")
+                );
+        }
 
         //run race countdown animation
         ShowRaceCountdownAnimation();
@@ -120,6 +139,14 @@ public class GameFlowManager : MonoBehaviour
 
     void Update()
     {
+        if (Vector3.Distance(playerKart.transform.position, resetPoint.position) > 100)
+        {
+            Rigidbody rb = playerKart.GetComponent<Rigidbody>();
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            playerKart.transform.rotation = new Quaternion(0, 0, 0, 1);
+            playerKart.transform.position = resetPoint.position;
+        }
 
         if (gameState != GameState.Play)
         {
